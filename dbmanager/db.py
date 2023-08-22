@@ -12,6 +12,7 @@ import bson
 from flask import current_app, g
 from werkzeug.local import LocalProxy
 from flask_pymongo import PyMongo
+from pymongo.collation import Collation
 from pymongo.errors import DuplicateKeyError, OperationFailure
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
@@ -41,7 +42,7 @@ def build_query_sort_project(filters):
     """
     query = {}
 
-    sort = [("LastName", -1)]
+    sort = [("LastName", 1)]
     project = None
     if filters:
         if "text" in filters:
@@ -62,6 +63,6 @@ def get_students(filters):
     if project:
         cursor = db.students.find(query, project).sort(sort)
     else:
-        cursor = db.students.find(query).sort(sort)
+        cursor = db.students.find(query).sort(sort).collation(Collation(locale='en', caseLevel=True))
 
     return (list(cursor))
